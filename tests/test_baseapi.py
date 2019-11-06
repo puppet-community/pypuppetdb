@@ -524,3 +524,12 @@ class TestAPIMethods(object):
         )
         httpretty.disable()
         httpretty.reset()
+
+    def test_node(self, baseapi):
+        httpretty.enable()
+        stub_request('http://localhost:8080/pdb/query/v4/nodes')
+        for node in baseapi.nodes():
+            print(node)
+        assert httpretty.last_request().path == '/pdb/query/v4/nodes'
+        httpretty.disable()
+        httpretty.reset()
