@@ -168,6 +168,8 @@ class Report(object):
     :ivar transaction: UUID identifying this transaction.
     :ivar environment: The environment assigned to the node that submitted\
         this report.
+    :ivar noop: :obj:`bool` A flag indicating weather the report was\
+        produced by a noop run.
     :ivar status: The status associated to this report's node.
     :ivar metrics: :obj:`list` containing :obj:`dict` of all metrics\
         associated with this report.
@@ -202,6 +204,7 @@ class Report(object):
         self.transaction = transaction
         self.environment = environment
         self.status = 'noop' if noop and noop_pending else status
+        self.noop = noop
         self.metrics = metrics
         self.logs = logs
         self.code_id = code_id
@@ -442,6 +445,8 @@ class Node(object):
             and later.
     :ivar cached_catalog_status: :obj:`string` the status of the cached\
             catalog from the last puppet run.
+    :ivar noop: :obj:`bool` A flag indicating whether the latest \
+        report of the node was produced by a noop run.
     """
 
     def __init__(self, api, name, deactivated=None, expired=None,
@@ -464,6 +469,7 @@ class Node(object):
         self.facts_environment = facts_environment
         self.latest_report_hash = latest_report_hash
         self.cached_catalog_status = cached_catalog_status
+        self.noop = noop
 
         if unreported:
             self.status = 'unreported'
