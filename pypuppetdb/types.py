@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 import logging
 from datetime import timedelta
 
+from typing import List
+
 from pypuppetdb.QueryBuilder import (EqualsOperator)
 from pypuppetdb.utils import json_to_datetime
 
@@ -11,53 +13,40 @@ log = logging.getLogger(__name__)
 
 
 class Event(object):
-    """This object represents an event. Unless otherwise specified all
-    parameters are required.
-
-    :param node: The hostname of the node this event fired on.
-    :type node: :obj:`string`
-    :param status: The status for the event.
-    :type status: :obj:`string`
-    :param timestamp: A timestamp of when this event occured.
-    :type timestamp: :obj:`string` formatted as ``%Y-%m-%dT%H:%M:%S.%fZ``
-    :param hash\_: The hash of the report that contains this event.
-    :type hash\_: :obj:`string`
-    :param title: The resource title this event was fired for.
-    :type title: :obj:`string`
-    :param property\_: The property of the resource this event was fired for.
-    :type property\_: :obj:`string`
-    :param message: A message associated with this event.
-    :type message: :obj:`string`
-    :param new_value: The new value/state of the resource.
-    :type new_value: :obj:`string`
-    :param old_value: The old value/state of the resource.
-    :type old_value: :obj:`string`
-    :param type\_: The type of the resource this event fired for.
-    :type type\_: :obj:`string`
-    :param class\_: The class responsible for running this event.
-    :type class\_: :obj:`string`
-    :param execution_path: The path used to reach this particular resource.
-    :type execution_path: :obj:`string`
-    :param source_file: The puppet source code file containing the class.
-    :type source_file: :obj:`string`
-    :param line_number: The line number in the source file containing the
-        definition responsible for triggering this event.
-    :type line_number: :obj:`int`
+    """This object represents an Event (action taken during a Puppet run, from the Report).
 
     :ivar node: A :obj:`string` of this event's node certname.
     :ivar status: A :obj:`string` of this event's status.
     :ivar failed: The :obj:`bool` equivalent of `status`.
-    :ivar timestamp: A :obj:`datetime.datetime` of when this event happend.
-    :ivar node: The hostname of the machine this event\
-        occured on.
+    :ivar timestamp: A :obj:`datetime.datetime` of when this event happened.
+    :ivar node: The hostname of the machine this event occurred on.
     :ivar hash\_: The hash of this event.
     :ivar item: :obj:`dict` with information about the item/resource this\
         event was triggered for.
     """
 
-    def __init__(self, node, status, timestamp, hash_, title, property_,
-                 message, new_value, old_value, type_, class_, execution_path,
-                 source_file, line_number):
+    def __init__(self, node: str, status: str, timestamp: str, hash_: str, title: str,
+                 property_: str, message: str, new_value: str, old_value: str, type_: str,
+                 class_: str, execution_path: str, source_file: str, line_number: int):
+        """Creates an Event object.
+
+        :param node: The hostname of the node this event fired on.
+        :param status: The status for the event.
+        :param timestamp: A timestamp of when this event occurred.
+               Formatted as ``%Y-%m-%dT%H:%M:%S.%fZ``
+        :param hash_: The hash of the report that contains this event.
+        :param title: The resource title this event was fired for.
+        :param property_: The property of the resource this event was fired for.
+        :param message: A message associated with this event.
+        :param new_value: The new value/state of the resource.
+        :param old_value: The old value/state of the resource.
+        :param type_: The type of the resource this event fired for.
+        :param class_: The class responsible for running this event.
+        :param execution_path: The path used to reach this particular resource.
+        :param source_file: The puppet source code file containing the class.
+        :param line_number: The line number in the source file containing the
+               definition responsible for triggering this event.
+        """
         self.node = node
         self.status = status
         if self.status == 'failure':
@@ -82,7 +71,13 @@ class Event(object):
         return str('{0}').format(self.__string)
 
     @staticmethod
-    def create_from_dict(event):
+    def create_from_dict(event: dict) -> 'Event':
+        """Create an Event object from a JSON object (dict) representing an Event
+        returned by PuppetDB API events endpoint:
+        https://puppet.com/docs/puppetdb/5.2/api/query/v4/events.html#response-format .
+
+        :param event: JSON object (dict) representing an Event
+        """
         return Event(
             node=event['certname'],
             status=event['status'],
@@ -102,58 +97,7 @@ class Event(object):
 
 
 class Report(object):
-    """This object represents a report. Unless otherwise specified all
-    parameters are required.
-
-    :param api: API object
-    :type api: :class:`pypuppetdb.api.BaseAPI`
-    :param node: The hostname of the node this report originated on.
-    :type node: :obj:`string`
-    :param hash\_: A string uniquely identifying this report.
-    :type hash\_: :obj:`string`
-    :param start: The start time of the agent run.
-    :type start: :obj:`string` formatted as ``%Y-%m-%dT%H:%M:%S.%fZ``
-    :param end: The time the agent finished its run.
-    :type end: :obj:`string` formatted as ``%Y-%m-%dT%H:%M:%S.%fZ``
-    :param received: The time PuppetDB received the report.
-    :type received: :obj:`string` formatted as ``%Y-%m-%dT%H:%M:%S.%fZ``
-    :param version: The catalog / configuration version.
-    :type version: :obj:`string`
-    :param format\_: The catalog format version.
-    :type format\_: :obj:`int`
-    :param agent_version: The Puppet agent version.
-    :type agent_version: :obj:`string`
-    :param transaction: The UUID of this transaction.
-    :type transaction: :obj:`string`
-    :param environment: (Optional) The environment assigned to the node that\
-        submitted this report.
-    :type environment: :obj:`string`
-    :param status: (Optional) The status associated to this report's node.
-    :type status: :obj:`string`
-    :param noop: (Default `False`) A flag indicating weather the report was\
-        produced by a noop run.
-    :type noop: :obj:`bool`
-    :param noop_pending: (Default `False`) A flag indicating weather the \
-        report had pending changes produced by a noop run.
-    :type noop_pending: :obj:`bool`
-    :param metrics: (Optional) All metrics associated with this report.
-    :type metrics: :obj:`list` containing :obj:`dict` with Metrics
-    :param logs: (Optional) All logs associated with this report.
-    :type logs: :obj:`list` containing :obj:`dict` of logs
-    :param code_id: (Optional) Ties the catalog to the Puppet Code that\
-        generated the catalog.
-    :type code_id: :obj:`string`
-    :param catalog_uuid: (Optional) Ties the report to the catalog used\
-        from that Puppet run.
-    :type catalog_uuid: :obj:`string`
-    :param cached_catalog_status: (Optional) Identifies if the Puppet run\
-        used a cached catalog and weather or not it was used due to an\
-        error. Can be one of 'explicitly_requested', 'on_failure',\
-        'not_used' not 'null'.
-    :type cached_catalog_status: :obj:`string`
-    :param producer: (Optional) The certname of the Puppet Master that\
-        sent the report to PuppetDB
-    :type producer: :obj:`string`
+    """This object represents a Report (of a Puppet run).
 
     :ivar node: The hostname this report originated from.
     :ivar hash\_: Unique identifier of this report.
@@ -184,12 +128,46 @@ class Report(object):
         Master that sent the report to PuppetDB
     """
 
-    def __init__(self, api, node, hash_, start, end, received, version,
-                 format_, agent_version, transaction, status=None,
-                 metrics={}, logs={}, environment=None,
-                 noop=False, noop_pending=False, code_id=None,
-                 catalog_uuid=None, cached_catalog_status=None,
-                 producer=None):
+    # no type hint for "api" to prevent circular import
+    def __init__(self, api, node: str, hash_: str, start: str, end: str, received: str,
+                 version: str, format_: int, agent_version: str, transaction: str,
+                 environment: str = None, status: str = None, noop: bool = False,
+                 noop_pending: bool = False, metrics: List[dict] = [{}], logs: List[dict] = [{}],
+                 code_id: str = None, catalog_uuid: str = None, cached_catalog_status: str = None,
+                 producer: str = None):
+        """Creates a Report object.
+
+        :param api: API object (for subqueries)
+        :param node: The hostname of the node this report originated on.
+        :param hash\_: A string uniquely identifying this report.
+        :param start: The start time of the agent run. Formatted as ``%Y-%m-%dT%H:%M:%S.%fZ``
+        :param end: The time the agent finished its run. Formatted as ``%Y-%m-%dT%H:%M:%S.%fZ``
+        :param received: The time PuppetDB received the report.
+               Formatted as ``%Y-%m-%dT%H:%M:%S.%fZ``
+        :param version: The catalog / configuration version.
+        :param format\_: The catalog format version.
+        :param agent_version: The Puppet agent version.
+        :param transaction: The UUID of this transaction.
+        :param environment: (Optional) The environment assigned to the node that\
+            submitted this report.
+        :param status: (Optional) The status associated to this report's node.
+        :param noop: (Default `False`) A flag indicating weather the report was\
+            produced by a noop run.
+        :param noop_pending: (Default `False`) A flag indicating weather the \
+            report had pending changes produced by a noop run.
+        :param metrics: (Optional) All metrics associated with this report.
+        :param logs: (Optional) All logs associated with this report.
+        :param code_id: (Optional) Ties the catalog to the Puppet Code that\
+            generated the catalog.
+        :param catalog_uuid: (Optional) Ties the report to the catalog used\
+            from that Puppet run.
+        :param cached_catalog_status: (Optional) Identifies if the Puppet run\
+            used a cached catalog and weather or not it was used due to an\
+            error. Can be one of 'explicitly_requested', 'on_failure',\
+            'not_used' not 'null'.
+        :param producer: (Optional) The certname of the Puppet Master that\
+            sent the report to PuppetDB
+        """
         self.node = node
         self.hash_ = hash_
         self.start = json_to_datetime(start)
@@ -219,16 +197,24 @@ class Report(object):
         return str('{0}').format(self.__string)
 
     def events(self, **kwargs):
-        """Get all events for this report. Additional arguments may also be
+        """Get all :class:`pypuppetdb.types.Event` for this report. Additional arguments may also be
         specified that will be passed to the query function.
         """
         return self.__api.events(query=EqualsOperator("report", self.hash_),
                                  **kwargs)
 
     @staticmethod
-    def create_from_dict(query_api, report):
+    # no type hint for "api" to prevent circular import
+    def create_from_dict(api, report: dict) -> 'Report':
+        """Create a Report from a JSON object (dict) representing a Report
+        returned by PuppetDB API reports endpoint:
+        https://puppet.com/docs/puppetdb/5.2/api/query/v4/reports.html#response-format .
+
+        :param api: API object (for subqueries)
+        :param report: JSON object (dict) representing a Report
+        """
         return Report(
-            api=query_api,
+            api=api,
             node=report['certname'],
             hash_=report['hash'],
             start=report['start_time'],
@@ -240,13 +226,14 @@ class Report(object):
             transaction=report['transaction_uuid'],
             environment=report['environment'],
             status=report['status'],
-            noop=report.get('noop'),
-            noop_pending=report.get('noop_pending'),
+            noop=report.get('noop', False),
+            noop_pending=report.get('noop_pending', False),
             metrics=report['metrics']['data'],
             logs=report['logs']['data'],
-            code_id=report.get('code_id'),
-            catalog_uuid=report.get('catalog_uuid'),
-            cached_catalog_status=report.get('cached_catalog_status')
+            code_id=report.get('code_id', None),
+            catalog_uuid=report.get('catalog_uuid', None),
+            cached_catalog_status=report.get('cached_catalog_status', None),
+            # producer=report.get('producer', None) # TODO: consider adding this missing param
         )
 
 
@@ -299,7 +286,7 @@ class Resource(object):
     parameters are required.
 
     :param node: The hostname this resource is located on.
-    :type noode: :obj:`string`
+    :type node: :obj:`string`
     :param name: The name of the resource in the Puppet manifest.
     :type name: :obj:`string`
     :param type\_: Type of the Puppet resource.
@@ -420,7 +407,7 @@ class Node(object):
     :param cached_catalog_status: Cached catalog status of the last puppet run\
             on this node, possible values are 'explicitly_requested',\
             'on_failure', 'not_used' or None.
-    :type cache_catalog_status: :obj:`string`
+    :type cached_catalog_status: :obj:`string`
 
     :ivar name: Hostname of this node.
     :ivar deactivated: :obj:`datetime.datetime` when this host was\
@@ -832,7 +819,7 @@ class Inventory(object):
     :ivar environment: The environment associated with the inventory's
         certname.
     :ivar facts: The dictionary of key-value pairs for the nodes
-        assosciated facts.
+        associated facts.
     :ivar trusted: The trusted data from the node.
     """
 
