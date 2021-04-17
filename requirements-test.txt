@@ -4,7 +4,7 @@ bandit
 coverage
 pep8
 mock
-pytest<6
+pytest<7
 pytest-cov
 pytest-pep8
 pytest-mock
