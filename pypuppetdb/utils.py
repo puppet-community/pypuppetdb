@@ -29,21 +29,19 @@ class UTC(datetime.tzinfo):
         return 'UTC'
 
 
-def json_to_datetime(date):
+def json_to_datetime(date: str) -> datetime.datetime:
     """Tranforms a JSON datetime string into a timezone aware datetime
     object with a UTC tzinfo object.
 
     :param date: The datetime representation.
-    :type date: :obj:`string`
 
     :returns: A timezone aware datetime object.
-    :rtype: :class:`datetime.datetime`
     """
     return datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%fZ').replace(
         tzinfo=UTC())
 
 
-def versioncmp(v1, v2):
+def versioncmp(v1, v2) -> int:
     """Compares two objects, x and y, and returns an integer according to the
     outcome. The return value is negative if x < y, zero if x == y and
     positive if x > y.
@@ -52,7 +50,6 @@ def versioncmp(v1, v2):
     :param v2: The second object to compare.
 
     :returns: -1, 0 or 1.
-    :rtype: :obj:`int`
     """
 
     def normalize(v):
