@@ -125,8 +125,11 @@ endpoints data.
 .. autoclass:: pypuppetdb.types.Fact
 .. autoclass:: pypuppetdb.types.Resource
 .. autoclass:: pypuppetdb.types.Event
+   :members:
+   :special-members: __init__
 .. autoclass:: pypuppetdb.types.Report
    :members:
+   :special-members: __init__
 .. autoclass:: pypuppetdb.types.Catalog
    :members:
 .. autoclass:: pypuppetdb.types.Edge
