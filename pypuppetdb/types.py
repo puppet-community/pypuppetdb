@@ -202,6 +202,13 @@ class Report(object):
         self.transaction = transaction
         self.environment = environment
         self.status = 'noop' if noop and noop_pending else status
+        if self.status == 'unchanged':
+            for _log in logs:
+                if 'error' in _log['tags']:
+                    self.status = 'error'
+                    break
+                elif 'warning' in _log['tags']:
+                    self.status = 'warning'
         self.metrics = metrics
         self.logs = logs
         self.code_id = code_id
