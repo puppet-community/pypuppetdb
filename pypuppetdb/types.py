@@ -299,7 +299,7 @@ class Resource(object):
     parameters are required.
 
     :param node: The hostname this resource is located on.
-    :type noode: :obj:`string`
+    :type node: :obj:`string`
     :param name: The name of the resource in the Puppet manifest.
     :type name: :obj:`string`
     :param type\_: Type of the Puppet resource.
@@ -420,7 +420,7 @@ class Node(object):
     :param cached_catalog_status: Cached catalog status of the last puppet run\
             on this node, possible values are 'explicitly_requested',\
             'on_failure', 'not_used' or None.
-    :type cache_catalog_status: :obj:`string`
+    :type cached_catalog_status: :obj:`string`
 
     :ivar name: Hostname of this node.
     :ivar deactivated: :obj:`datetime.datetime` when this host was\
@@ -832,7 +832,7 @@ class Inventory(object):
     :ivar environment: The environment associated with the inventory's
         certname.
     :ivar facts: The dictionary of key-value pairs for the nodes
-        assosciated facts.
+        associated facts.
     :ivar trusted: The trusted data from the node.
     """
 
