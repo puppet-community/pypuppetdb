@@ -23,7 +23,7 @@ jobs:
         run: |
           poetry build
       - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.12.3
+        uses: pypa/gh-action-pypi-publish@v1.12.4
         with:
           password: ${{ secrets.PYPI_API_TOKEN_PYPUPPETDB }}
       - name: Create release in GitHub
