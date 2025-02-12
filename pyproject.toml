@@ -37,7 +37,7 @@ httpretty = "^1.1.4"
 [tool.poetry.group.docs.dependencies]
 alabaster = "^0.7"
 babel = "^2.16.0"
-certifi = "^2024.8.30"
+certifi = ">=2024.8.30,<2026.0.0"
 requests = "^2.32.3"
 sphinx = "^7"
 sphinx-rtd-theme = "^3.0.2"
